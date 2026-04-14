@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Farmácia V2 - Modular</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fa-solid fa-staff-snake me-2"></i> PharmaSys</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="estoque-tab" data-bs-toggle="tab" data-bs-target="#estoque" type="button" role="tab"><i class="fa-solid fa-boxes-stacked me-1"></i> Estoque e Cadastro</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pdv-tab" data-bs-toggle="tab" data-bs-target="#pdv" type="button" role="tab"><i class="fa-solid fa-cart-shopping me-1"></i> Nova Venda</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="historico-tab" data-bs-toggle="tab" data-bs-target="#historico" type="button" role="tab"><i class="fa-solid fa-clock-rotate-left me-1"></i> Histórico de Vendas</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            
+            <div class="tab-pane fade show active" id="estoque" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card p-4">
+                            <h5 class="mb-3"><i class="fa-solid fa-plus text-primary me-2"></i>Novo Medicamento</h5>
+                            <form id="formMedicamento" onsubmit="cadastrarMedicamento(event)">
+                                <div class="mb-3">
+                                    <label class="form-label">Nome</label>
+                                    <input type="text" class="form-control" id="nome" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Fabricante</label>
+                                    <input type="text" class="form-control" id="fabricante" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Preço (R$)</label>
+                                        <input type="number" step="0.01" class="form-control" id="preco" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Estoque</label>
+                                        <input type="number" class="form-control" id="estoqueQtd" required>
+                                    </div>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="receita">
+                                    <label class="form-check-label text-danger">Exige Receita Médica</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-floppy-disk me-1"></i> Salvar</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card p-4">
+                            <h5 class="mb-3"><i class="fa-solid fa-list text-primary me-2"></i>Medicamentos Cadastrados</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nome</th>
+                                            <th>Fabricante</th>
+                                            <th>Preço</th>
+                                            <th>Estoque</th>
+                                            <th>Receita</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabelaMedicamentos">
+                                        </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pdv" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card p-4">
+                            <h5 class="mb-3"><i class="fa-solid fa-barcode text-success me-2"></i>Adicionar ao Carrinho</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Selecione o Medicamento</label>
+                                <select class="form-select" id="selectMedicamentoVenda"></select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Quantidade</label>
+                                <input type="number" class="form-control" id="quantidadeVenda" value="1" min="1">
+                            </div>
+                            <button class="btn btn-success w-100" onclick="adicionarAoCarrinho()"><i class="fa-solid fa-cart-plus me-1"></i> Adicionar Item</button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card p-4 bg-light border border-success border-opacity-25">
+                            <h5 class="mb-3"><i class="fa-solid fa-receipt text-success me-2"></i>Resumo da Venda</h5>
+                            <ul class="list-group mb-3" id="listaCarrinho">
+                                <li class="list-group-item text-muted text-center">O carrinho está vazio</li>
+                            </ul>
+                            <h4 class="text-end mb-4 text-success">Total: R$ <span id="totalVenda">0.00</span></h4>
+                            <button class="btn btn-lg btn-success w-100" onclick="finalizarVenda()"><i class="fa-solid fa-check-double me-1"></i> Finalizar Venda</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="historico" role="tabpanel">
+                <div class="card p-4">
+                    <h5 class="mb-3"><i class="fa-solid fa-chart-line text-info me-2"></i>Todas as Vendas Realizadas</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID Venda</th>
+                                    <th>Data e Hora</th>
+                                    <th>Qtd. Itens</th>
+                                    <th>Total da Venda</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaVendas">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="js/app.js"></script>
+</body>
+</html>

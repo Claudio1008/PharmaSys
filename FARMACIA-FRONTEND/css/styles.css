@@ -1,0 +1,151 @@
+/* style.css - Design e Estilos Premium do Sistema */
+
+/* 1. Importando uma fonte moderna e profissional do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body { 
+    background-color: #f0f4f8; /* Fundo levemente azulado e muito limpo */
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    color: #334155; /* Texto cinza escuro para cansar menos a vista */
+}
+
+/* 2. Navbar moderna com efeito de Gradiente e sombra */
+.bg-primary {
+    background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%) !important;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3) !important;
+}
+
+.navbar-brand { 
+    font-weight: 700; 
+    font-size: 1.6rem; 
+    letter-spacing: -0.5px;
+}
+
+/* 3. Cartões (Cards) flutuantes com sombras suaves */
+.card { 
+    border: none; 
+    border-radius: 16px; /* Bordas mais arredondadas e modernas */
+    box-shadow: 0 8px 24px rgba(149, 157, 165, 0.1); 
+    transition: all 0.3s ease; /* Transição suave para qualquer mudança */
+    background-color: #ffffff;
+}
+
+.card:hover {
+    transform: translateY(-4px); /* O cartão "levanta" quando passa o mouse */
+    box-shadow: 0 12px 32px rgba(149, 157, 165, 0.15);
+}
+
+/* 4. Estilo das Abas de Navegação (Nav-Tabs) */
+.nav-tabs {
+    border-bottom: 2px solid #e2e8f0;
+    gap: 8px; /* Espaço entre as abas */
+}
+
+.nav-tabs .nav-link { 
+    color: #64748b; 
+    font-weight: 600; 
+    border: none;
+    border-bottom: 3px solid transparent;
+    border-radius: 8px 8px 0 0; 
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #0284c7;
+    background-color: #f1f5f9;
+    border-color: transparent;
+}
+
+.nav-tabs .nav-link.active { 
+    color: #0284c7; 
+    background-color: transparent;
+    border-bottom: 3px solid #0284c7; /* Linha azul de destaque embaixo */
+}
+
+/* 5. Tabela mais elegante e minimalista */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    color: #475569;
+    font-weight: 600;
+    border-bottom-width: 2px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    vertical-align: middle;
+    color: #334155;
+}
+
+.table-hover tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-hover tbody tr:hover { 
+    background-color: #f0f9ff; /* Azul super claro no hover */
+    transform: scale(1.005); /* Efeito de leve aproximação na linha */
+}
+
+/* 6. Inputs e Campos de Formulário mais refinados */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15); /* Efeito de brilho azul ao clicar */
+}
+
+/* 7. Botões interativos com sombra dinâmica */
+.btn {
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #0284c7;
+    border-color: #0284c7;
+}
+
+.btn-primary:hover {
+    background-color: #0369a1;
+    border-color: #0369a1;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+.btn-success {
+    background-color: #10b981;
+    border-color: #10b981;
+}
+
+.btn-success:hover {
+    background-color: #059669;
+    border-color: #059669;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* 8. Animação de App (Single Page Application) ao trocar de abas */
+.tab-pane {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); /* Começa um pouco mais abaixo e transparente */
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); /* Sobe para a posição final ficando visível */
+    }
+}
