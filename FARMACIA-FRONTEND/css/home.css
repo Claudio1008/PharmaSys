@@ -1,0 +1,265 @@
+/* ============================= */
+/* 🎨 VARIÁVEIS CSS (TEMA) */
+/* ============================= */
+:root {
+  --bg-dark: #020617;
+  --text-light: #e2e8f0;
+  --primary: #3b82f6;
+  --success: #22c55e;
+  --accent: #a78bfa;
+  --info: #38bdf8;
+  --glass-bg: rgba(2, 6, 23, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --transition-fast: 0.3s ease;
+  --transition-slow: 0.4s ease;
+}
+
+/* ============================= */
+/* 🌌 RESET + BASE */
+/* ============================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================= */
+/* 🌌 BACKGROUND CINEMÁTICO */
+/* ============================= */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200vw;
+  height: 200vh;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.15), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.15), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1), transparent 50%);
+  animation: bgMove 20s infinite alternate linear;
+  z-index: -1;
+  pointer-events: none; /* Impede interações indesejadas com o pseudo-elemento */
+}
+
+@keyframes bgMove {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-5vw, -5vh); }
+}
+
+/* ============================= */
+/* 🔝 NAVBAR PREMIUM */
+/* ============================= */
+.custom-nav {
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px); /* Suporte para Safari */
+  background: var(--glass-bg);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--text-light);
+  text-decoration: none;
+}
+
+/* ============================= */
+/* 🎬 HERO CINEMÁTICO */
+/* ============================= */
+.hero {
+  min-height: 100dvh; /* dvh resolve problemas de barra de navegação no mobile */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.hero-content {
+  max-width: 700px;
+  animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.title {
+  font-size: clamp(2.2rem, 5vw, 3.5rem); /* Tipografia responsiva nativa */
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--info), var(--success), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin-top: 1rem;
+  opacity: 0.8;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* ============================= */
+/* ✨ BOTÕES */
+/* ============================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  text-decoration: none;
+  outline: none;
+}
+
+.btn:active {
+  transform: scale(0.97); /* Efeito de clique */
+}
+
+.btn:focus-visible {
+  box-shadow: 0 0 0 3px var(--bg-dark), 0 0 0 5px var(--info); /* Acessibilidade */
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--success));
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+}
+
+.btn-outline-light {
+  background: transparent;
+  color: var(--text-light);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-outline-light:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================= */
+/* 💎 FEATURES */
+/* ============================= */
+.features {
+  padding: 6rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.features h2 {
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+  font-size: 2.5rem;
+}
+
+/* ============================= */
+/* 🧊 CARDS ULTRA */
+/* ============================= */
+.feature-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  transition: all var(--transition-slow);
+  position: relative;
+  overflow: hidden;
+  will-change: transform, opacity; /* Otimização de performance */
+}
+
+.feature-card i {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--info);
+}
+
+/* Brilho interno dinâmico */
+.feature-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+/* Efeito hover refinado */
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 0 0 40px rgba(59, 130, 246, 0.15);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================= */
+/* 🎬 ANIMAÇÕES E SCROLL REVEAL */
+/* ============================= */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feature-card {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.feature-card.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================= */
+/* 🌀 SCROLLBAR */
+/* ============================= */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--primary), var(--success));
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, var(--info), var(--success));
+}

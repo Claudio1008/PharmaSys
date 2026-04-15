@@ -3,125 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Farmácia V2 - Modular</title>
+    <title>PharmaSys - Sistema Profissional</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="bg-light">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
         <div class="container">
             <a class="navbar-brand" href="#"><i class="fa-solid fa-staff-snake me-2"></i> PharmaSys</a>
+            <button class="btn btn-outline-light btn-sm" id="btn-sair" style="display: none;" onclick="fazerLogout()">
+                <i class="fa-solid fa-sign-out-alt"></i> Sair
+            </button>
         </div>
     </nav>
 
-    <div class="container">
-        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+    <div class="container" id="tela-login">
+        <div class="row justify-content-center w-100">
+            <div class="col-md-6 col-lg-5">
+                
+                <div class="card card-autenticacao shadow-lg" id="bloco-login">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <div class="icon-circle bg-primary text-white p-3 rounded-circle mb-3">
+                                <i class="fa-solid fa-lock fa-2x"></i>
+                            </div>
+                            <h3 class="fw-bold text-dark">Bem-vindo</h3>
+                            <p class="text-muted">Acesse sua conta para gerenciar a farmácia</p>
+                        </div>
+                        
+                        <form id="form-login" onsubmit="fazerLogin(event)">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-uppercase">Usuário</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa-solid fa-user text-muted"></i></span>
+                                    <input type="text" class="form-control input-interativo" id="login-username" required placeholder="Digite seu usuário">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-uppercase">Senha</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa-solid fa-key text-muted"></i></span>
+                                    <input type="password" class="form-control input-interativo" id="login-password" required placeholder="••••••••">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-3 btn-interativo">
+                                Entrar no Sistema <i class="fa-solid fa-arrow-right ms-2"></i>
+                            </button>
+                        </form>
+                        
+                        <div id="login-erro" class="alert alert-danger mt-3 text-center border-0 small" style="display: none;">
+                            <i class="fa-solid fa-circle-exclamation me-1"></i> Usuário ou senha incorretos!
+                        </div>
+
+                        <div class="mt-5 text-center">
+                            <p class="mb-0 text-muted">Ainda não tem acesso?</p>
+                            <button class="btn btn-link text-primary fw-bold text-decoration-none" onclick="alternarTelas('registro')">
+                                <i class="fa-solid fa-user-plus me-1"></i> Criar Nova Conta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-autenticacao shadow-lg aba-registro" id="bloco-registro" style="display: none;">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <div class="icon-circle bg-success text-white p-3 rounded-circle mb-3">
+                                <i class="fa-solid fa-user-plus fa-2x"></i>
+                            </div>
+                            <h3 class="fw-bold text-dark">Novo Cadastro</h3>
+                            <p class="text-muted">Preencha os dados para criar seu login</p>
+                        </div>
+                        
+                        <form id="form-registro" onsubmit="registrarNovoUsuario(event)">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-uppercase">Escolha um Usuário</label>
+                                <input type="text" class="form-control input-interativo" id="reg-username" required placeholder="Ex: admin.farmacia">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-uppercase">Defina uma Senha</label>
+                                <input type="password" class="form-control input-interativo" id="reg-password" required placeholder="Mínimo 4 caracteres">
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 py-3 btn-interativo shadow">
+                                Confirmar Registro <i class="fa-solid fa-check ms-2"></i>
+                            </button>
+                        </form>
+
+                        <div class="mt-4 text-center">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="alternarTelas('login')">
+                                <i class="fa-solid fa-chevron-left me-1"></i> Voltar para o Login
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-2">
+        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist" style="display: none;">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="estoque-tab" data-bs-toggle="tab" data-bs-target="#estoque" type="button" role="tab"><i class="fa-solid fa-boxes-stacked me-1"></i> Estoque e Cadastro</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pdv-tab" data-bs-toggle="tab" data-bs-target="#pdv" type="button" role="tab"><i class="fa-solid fa-cart-shopping me-1"></i> Nova Venda</button>
+                <button class="nav-link" id="pdv-tab" data-bs-toggle="tab" data-bs-target="#pdv" type="button" role="tab"><i class="fa-solid fa-cash-register me-1"></i> Frente de Caixa</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="historico-tab" data-bs-toggle="tab" data-bs-target="#historico" type="button" role="tab"><i class="fa-solid fa-clock-rotate-left me-1"></i> Histórico de Vendas</button>
+                <button class="nav-link" id="historico-tab" data-bs-toggle="tab" data-bs-target="#historico" type="button" role="tab"><i class="fa-solid fa-chart-line me-1"></i> Histórico</button>
             </li>
         </ul>
 
-        <div class="tab-content" id="myTabContent">
+        <div class="tab-content" id="myTabContent" style="display: none;">
             
             <div class="tab-pane fade show active" id="estoque" role="tabpanel">
-                <div class="row">
-                    <div class="col-md-4 mb-4">
-                        <div class="card p-4">
-                            <h5 class="mb-3"><i class="fa-solid fa-plus text-primary me-2"></i>Novo Medicamento</h5>
-                            <form id="formMedicamento" onsubmit="cadastrarMedicamento(event)">
-                                <div class="mb-3">
-                                    <label class="form-label">Nome</label>
-                                    <input type="text" class="form-control" id="nome" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Fabricante</label>
-                                    <input type="text" class="form-control" id="fabricante" required>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Preço (R$)</label>
-                                        <input type="number" step="0.01" class="form-control" id="preco" required>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Estoque</label>
-                                        <input type="number" class="form-control" id="estoqueQtd" required>
-                                    </div>
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" id="receita">
-                                    <label class="form-check-label text-danger">Exige Receita Médica</label>
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-floppy-disk me-1"></i> Salvar</button>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-8">
-                        <div class="card p-4">
-                            <h5 class="mb-3"><i class="fa-solid fa-list text-primary me-2"></i>Medicamentos Cadastrados</h5>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Nome</th>
-                                            <th>Fabricante</th>
-                                            <th>Preço</th>
-                                            <th>Estoque</th>
-                                            <th>Receita</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tabelaMedicamentos">
-                                        </tbody>
-                                </table>
-                            </div>
-                        </div>
+                <div class="card p-4 shadow-sm border-0">
+                    <h5 class="mb-3 text-primary fw-bold"><i class="fa-solid fa-pills me-2"></i>Medicamentos no Estoque</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Fabricante</th>
+                                    <th>Preço</th>
+                                    <th>Estoque</th>
+                                    <th>Receita</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaEstoque"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="pdv" role="tabpanel">
                 <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <div class="card p-4">
-                            <h5 class="mb-3"><i class="fa-solid fa-barcode text-success me-2"></i>Adicionar ao Carrinho</h5>
+                    <div class="col-md-5">
+                        <div class="card p-4 mb-4 shadow-sm border-0">
+                            <h5 class="mb-3 text-primary fw-bold"><i class="fa-solid fa-barcode me-2"></i>Adicionar Item</h5>
                             <div class="mb-3">
-                                <label class="form-label">Selecione o Medicamento</label>
-                                <select class="form-select" id="selectMedicamentoVenda"></select>
+                                <label class="form-label">Medicamento</label>
+                                <select class="form-select" id="select-medicamento">
+                                    <option value="">Selecione...</option>
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Quantidade</label>
-                                <input type="number" class="form-control" id="quantidadeVenda" value="1" min="1">
+                                <input type="number" class="form-control" id="input-qtd" value="1" min="1">
                             </div>
-                            <button class="btn btn-success w-100" onclick="adicionarAoCarrinho()"><i class="fa-solid fa-cart-plus me-1"></i> Adicionar Item</button>
+                            <button class="btn btn-primary w-100 py-2" onclick="adicionarAoCarrinho()">
+                                <i class="fa-solid fa-cart-plus me-1"></i> Adicionar ao Carrinho
+                            </button>
                         </div>
                     </div>
-
-                    <div class="col-md-6 mb-4">
-                        <div class="card p-4 bg-light border border-success border-opacity-25">
-                            <h5 class="mb-3"><i class="fa-solid fa-receipt text-success me-2"></i>Resumo da Venda</h5>
-                            <ul class="list-group mb-3" id="listaCarrinho">
-                                <li class="list-group-item text-muted text-center">O carrinho está vazio</li>
-                            </ul>
-                            <h4 class="text-end mb-4 text-success">Total: R$ <span id="totalVenda">0.00</span></h4>
-                            <button class="btn btn-lg btn-success w-100" onclick="finalizarVenda()"><i class="fa-solid fa-check-double me-1"></i> Finalizar Venda</button>
+                    <div class="col-md-7">
+                        <div class="card p-4 shadow-sm border-0">
+                            <h5 class="mb-3 text-success fw-bold"><i class="fa-solid fa-cart-shopping me-2"></i>Carrinho Atual</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle text-center">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Medicamento</th>
+                                            <th>Qtd</th>
+                                            <th>Subtotal</th>
+                                            <th>Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabelaCarrinho">
+                                        <tr><td colspan="4" class="text-muted py-4">Carrinho vazio</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                                <h4 class="fw-bold text-dark mb-0">Total:</h4>
+                                <h4 class="fw-bold text-success mb-0">R$ <span id="totalVenda">0.00</span></h4>
+                            </div>
+                            <button class="btn btn-lg btn-success w-100 mt-3 py-3 fw-bold" onclick="finalizarVenda()">
+                                <i class="fa-solid fa-check-double me-1"></i> FINALIZAR VENDA
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="historico" role="tabpanel">
-                <div class="card p-4">
-                    <h5 class="mb-3"><i class="fa-solid fa-chart-line text-info me-2"></i>Todas as Vendas Realizadas</h5>
+                <div class="card p-4 shadow-sm border-0">
+                    <h5 class="mb-3 text-info fw-bold"><i class="fa-solid fa-chart-line me-2"></i>Todas as Vendas Realizadas</h5>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
@@ -132,18 +201,15 @@
                                     <th>Total da Venda</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabelaVendas">
-                                </tbody>
+                            <tbody id="tabelaVendas"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script src="js/app.js"></script>
 </body>
 </html>

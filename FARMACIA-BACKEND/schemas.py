@@ -2,11 +2,14 @@ from pydantic import BaseModel
 from typing import List
 import datetime
 
-# ==========================================
-# SCHEMAS (Validação de Dados)
-# ==========================================
+class UsuarioCreate(BaseModel):
+    username: str
+    password: str
 
-# --- SCHEMAS DE MEDICAMENTOS ---
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
 class MedicamentoBase(BaseModel):
     nome: str
     fabricante: str
@@ -22,7 +25,6 @@ class MedicamentoResponse(MedicamentoBase):
     class Config:
         from_attributes = True
 
-# --- SCHEMAS DE VENDAS ---
 class ItemVendaCreate(BaseModel):
     medicamento_id: int
     quantidade: int
@@ -44,4 +46,3 @@ class VendaResponse(BaseModel):
     itens: List[ItemVendaResponse]
     class Config:
         from_attributes = True
-

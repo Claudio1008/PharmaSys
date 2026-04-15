@@ -1,205 +1,205 @@
-// app.js - Lógica de conexão e funcionamento do Front-end
-
 const API_URL = "http://127.0.0.1:8000";
+let listaMedicamentos = [];
 let carrinho = [];
 
-// Inicializa o sistema buscando os dados quando a página carrega
-window.onload = function() {
-    carregarMedicamentos();
-    carregarVendas();
-};
+// ==========================================
+// SEGURANÇA E LOGIN
+// ==========================================
 
-// ==========================
-// MÓDULO: MEDICAMENTOS
-// ==========================
-async function carregarMedicamentos() {
-    try {
-        const response = await fetch(`${API_URL}/medicamentos/`);
-        const medicamentos = await response.json();
-        
-        const tabela = document.getElementById("tabelaMedicamentos");
-        const select = document.getElementById("selectMedicamentoVenda");
-        
-        tabela.innerHTML = "";
-        select.innerHTML = '<option value="">-- Escolha --</option>';
-
-        medicamentos.forEach(med => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><span class="badge bg-secondary">#${med.id}</span></td>
-                <td class="fw-bold">${med.nome}</td>
-                <td>${med.fabricante}</td>
-                <td class="text-success fw-bold">R$ ${med.preco.toFixed(2)}</td>
-                <td>${med.estoque > 0 ? med.estoque : '<span class="text-danger">Sem estoque</span>'}</td>
-                <td>${med.receita_obrigatoria ? '<span class="badge bg-danger">Sim</span>' : '<span class="badge bg-success">Não</span>'}</td>
-            `;
-            tabela.appendChild(tr);
-
-            if(med.estoque > 0) {
-                select.innerHTML += `<option value="${med.id}" data-preco="${med.preco}" data-nome="${med.nome}">
-                    ${med.nome} - R$ ${med.preco.toFixed(2)} (Estoque: ${med.estoque})
-                </option>`;
-            }
-        });
-    } catch (error) {
-        console.error("Erro ao carregar medicamentos:", error);
+function alternarTelas(tela) {
+    const blocoLogin = document.getElementById('bloco-login');
+    const blocoRegistro = document.getElementById('bloco-registro');
+    
+    if (tela === 'registro') {
+        blocoLogin.style.display = 'none';
+        blocoRegistro.style.display = 'block';
+    } else {
+        blocoRegistro.style.display = 'none';
+        blocoLogin.style.display = 'block';
     }
 }
 
-async function cadastrarMedicamento(event) {
-    event.preventDefault();
-    
-    const medData = {
-        nome: document.getElementById("nome").value,
-        fabricante: document.getElementById("fabricante").value,
-        preco: parseFloat(document.getElementById("preco").value),
-        estoque: parseInt(document.getElementById("estoqueQtd").value),
-        receita_obrigatoria: document.getElementById("receita").checked
+function getHeadersComToken() {
+    const token = localStorage.getItem("token");
+    return {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
     };
+}
+
+async function registrarNovoUsuario(event) {
+    event.preventDefault();
+    const username = document.getElementById("reg-username").value;
+    const password = document.getElementById("reg-password").value;
 
     try {
-        const response = await fetch(`${API_URL}/medicamentos/`, {
+        const response = await fetch(`${API_URL}/registrar`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(medData)
+            body: JSON.stringify({ username, password })
         });
 
         if (response.ok) {
-            alert("✅ Medicamento cadastrado com sucesso!");
-            document.getElementById("formMedicamento").reset();
-            carregarMedicamentos(); 
+            alert("✅ Cadastro realizado com sucesso!");
+            document.getElementById("form-registro").reset();
+            alternarTelas('login');
         } else {
-            alert("❌ Erro ao cadastrar.");
+            const data = await response.json();
+            alert("❌ Erro: " + data.detail);
         }
-    } catch (error) {
-        alert("❌ Erro de conexão.");
-    }
+    } catch (e) { alert("Erro de conexão."); }
 }
 
-// ==========================
-// MÓDULO: VENDAS (CARRINHO)
-// ==========================
-function adicionarAoCarrinho() {
-    const select = document.getElementById("selectMedicamentoVenda");
-    const inputQtd = document.getElementById("quantidadeVenda");
+async function fazerLogin(event) {
+    event.preventDefault();
+    const formData = new URLSearchParams();
+    formData.append("username", document.getElementById("login-username").value);
+    formData.append("password", document.getElementById("login-password").value);
+
+    try {
+        const response = await fetch(`${API_URL}/login`, {
+            method: "POST",
+            body: formData
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem("token", data.access_token);
+            iniciarSistema();
+        } else {
+            document.getElementById("login-erro").style.display = "block";
+        }
+    } catch (e) { alert("Erro ao conectar."); }
+}
+
+function iniciarSistema() {
+    document.getElementById("tela-login").style.display = "none";
+    document.getElementById("myTab").style.display = "flex";
+    document.getElementById("myTabContent").style.display = "block";
+    document.getElementById("btn-sair").style.display = "block";
     
-    const medId = select.value;
-    const qtd = parseInt(inputQtd.value);
+    carregarMedicamentos();
+    carregarHistorico();
+}
 
-    if (!medId || qtd <= 0) {
-        alert("Selecione um medicamento e uma quantidade válida.");
-        return;
-    }
+function fazerLogout() {
+    localStorage.removeItem("token");
+    window.location.reload();
+}
 
-    const option = select.options[select.selectedIndex];
-    const nome = option.getAttribute("data-nome");
-    const preco = parseFloat(option.getAttribute("data-preco"));
+// ==========================================
+// SISTEMA DE FARMÁCIA (ESTOQUE E PDV)
+// ==========================================
+
+async function carregarMedicamentos() {
+    try {
+        const res = await fetch(`${API_URL}/medicamentos/`, { headers: getHeadersComToken() });
+        if (res.status === 401) return fazerLogout();
+        
+        listaMedicamentos = await res.json();
+        const tbody = document.getElementById("tabelaEstoque");
+        const select = document.getElementById("select-medicamento");
+        
+        tbody.innerHTML = "";
+        select.innerHTML = '<option value="">Selecione...</option>';
+
+        listaMedicamentos.forEach(med => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${med.id}</td>
+                    <td class="fw-bold">${med.nome}</td>
+                    <td>${med.fabricante}</td>
+                    <td class="text-success">R$ ${med.preco.toFixed(2)}</td>
+                    <td><span class="badge ${med.estoque > 5 ? 'bg-primary' : 'bg-danger'}">${med.estoque}</span></td>
+                    <td>${med.receita_obrigatoria ? 'Sim' : 'Não'}</td>
+                </tr>`;
+            
+            if(med.estoque > 0) {
+                select.innerHTML += `<option value="${med.id}">${med.nome} (R$ ${med.preco.toFixed(2)})</option>`;
+            }
+        });
+    } catch (e) { console.error(e); }
+}
+
+function adicionarAoCarrinho() {
+    const id = document.getElementById("select-medicamento").value;
+    const qtd = parseInt(document.getElementById("input-qtd").value);
+    const med = listaMedicamentos.find(m => m.id == id);
+
+    if (!med || qtd < 1) return alert("Selecione um item válido.");
+    if (qtd > med.estoque) return alert("Estoque insuficiente.");
 
     carrinho.push({
-        medicamento_id: parseInt(medId),
-        nome: nome,
+        medicamento_id: med.id,
+        nome: med.nome,
         quantidade: qtd,
-        preco_unitario: preco,
-        subtotal: preco * qtd
+        preco: med.preco,
+        subtotal: med.preco * qtd
     });
 
-    atualizarCarrinhoHTML();
-    inputQtd.value = 1;
-    select.value = "";
+    atualizarCarrinho();
 }
 
-function atualizarCarrinhoHTML() {
-    const lista = document.getElementById("listaCarrinho");
-    const spanTotal = document.getElementById("totalVenda");
-    lista.innerHTML = "";
+function atualizarCarrinho() {
+    const tbody = document.getElementById("tabelaCarrinho");
     let total = 0;
-
-    if(carrinho.length === 0) {
-        lista.innerHTML = '<li class="list-group-item text-muted text-center">O carrinho está vazio</li>';
-        spanTotal.innerText = "0.00";
-        return;
-    }
+    tbody.innerHTML = "";
 
     carrinho.forEach((item, index) => {
         total += item.subtotal;
-        lista.innerHTML += `
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <strong>${item.quantidade}x ${item.nome}</strong><br>
-                    <small class="text-muted">R$ ${item.preco_unitario.toFixed(2)} cada</small>
-                </div>
-                <div class="d-flex align-items-center">
-                    <span class="badge bg-success rounded-pill me-3">R$ ${item.subtotal.toFixed(2)}</span>
-                    <button class="btn btn-sm btn-outline-danger" onclick="removerDoCarrinho(${index})"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            </li>
-        `;
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.nome}</td>
+                <td>${item.quantidade}</td>
+                <td>R$ ${item.subtotal.toFixed(2)}</td>
+                <td><button class="btn btn-sm btn-outline-danger" onclick="carrinho.splice(${index},1);atualizarCarrinho()"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>`;
     });
-    spanTotal.innerText = total.toFixed(2);
-}
 
-function removerDoCarrinho(index) {
-    carrinho.splice(index, 1);
-    atualizarCarrinhoHTML();
+    document.getElementById("totalVenda").innerText = total.toFixed(2);
 }
 
 async function finalizarVenda() {
-    if (carrinho.length === 0) {
-        alert("O carrinho está vazio!");
-        return;
-    }
-
-    const itensVenda = carrinho.map(item => ({
-        medicamento_id: item.medicamento_id,
-        quantidade: item.quantidade
-    }));
+    if (carrinho.length === 0) return alert("Carrinho vazio!");
 
     try {
-        const response = await fetch(`${API_URL}/vendas/`, {
+        const res = await fetch(`${API_URL}/vendas/`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ itens: itensVenda })
+            headers: getHeadersComToken(),
+            body: JSON.stringify({ itens: carrinho })
         });
 
-        if (response.ok) {
-            alert("🛒 Venda finalizada com sucesso!");
+        if (res.ok) {
+            alert("🚀 Venda Finalizada!");
             carrinho = [];
-            atualizarCarrinhoHTML();
-            carregarMedicamentos(); 
-            carregarVendas();       
-        } else {
-            const errorData = await response.json();
-            alert("❌ Erro na venda: " + errorData.detail);
+            atualizarCarrinho();
+            carregarMedicamentos();
+            carregarHistorico();
         }
-    } catch (error) {
-        alert("❌ Erro de conexão.");
-    }
+    } catch (e) { alert("Erro ao vender."); }
 }
 
-// ==========================
-// MÓDULO: HISTÓRICO DE VENDAS
-// ==========================
-async function carregarVendas() {
+async function carregarHistorico() {
     try {
-        const response = await fetch(`${API_URL}/vendas/`);
-        if(!response.ok) return; 
+        const res = await fetch(`${API_URL}/vendas/`, { headers: getHeadersComToken() });
+        const vendas = await res.json();
+        const tbody = document.getElementById("tabelaVendas");
+        tbody.innerHTML = "";
 
-        const vendas = await response.json();
-        const tabela = document.getElementById("tabelaVendas");
-        tabela.innerHTML = "";
-
-        vendas.forEach(venda => {
-            const dataFormatada = new Date(venda.data_venda).toLocaleString('pt-BR');
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><span class="badge bg-primary">#${venda.id}</span></td>
-                <td>${dataFormatada}</td>
-                <td>${venda.itens.length} itens</td>
-                <td class="text-success fw-bold">R$ ${venda.total.toFixed(2)}</td>
-            `;
-            tabela.appendChild(tr);
+        vendas.forEach(v => {
+            tbody.innerHTML += `
+                <tr>
+                    <td class="fw-bold">#${v.id}</td>
+                    <td>${new Date(v.data_venda).toLocaleString()}</td>
+                    <td>${v.itens.length} itens</td>
+                    <td class="text-success fw-bold">R$ ${v.total.toFixed(2)}</td>
+                </tr>`;
         });
-    } catch (error) {
-        console.log("Erro ao buscar histórico de vendas.");
-    }
+    } catch (e) { console.error(e); }
 }
+
+// Persistência de Sessão
+window.onload = () => {
+    if (localStorage.getItem("token")) iniciarSistema();
+};
+

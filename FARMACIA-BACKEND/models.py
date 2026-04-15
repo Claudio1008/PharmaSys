@@ -1,13 +1,14 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 import datetime
-
-# Importa a Base que acabamos de criar no database.py
 from database import Base
 
-# ==========================================
-# MODELOS (Tabelas do Banco de Dados)
-# ==========================================
+class UsuarioDB(Base):
+    __tablename__ = "usuarios"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True, index=True)
+    hashed_password = Column(String(255))
+
 class MedicamentoDB(Base):
     __tablename__ = "medicamentos"
     id = Column(Integer, primary_key=True, index=True)
@@ -32,4 +33,3 @@ class ItemVendaDB(Base):
     quantidade = Column(Integer)
     preco_unitario = Column(Float)
     venda = relationship("VendaDB", back_populates="itens")
-    
